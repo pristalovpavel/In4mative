@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.pristalovpavel.in4mative.DateTimeFragment"
+    android:orientation="horizontal"
+    android:padding="@dimen/activity_base_view_padding">
+
+    <TextClock
+        android:id="@+id/timeClock"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" 
+        android:layout_weight="1" 
+        android:gravity="center"
+        android:textSize="@dimen/clock_font_size"
+        android:lines="1"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextClock
+            android:id="@+id/dateView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format24Hour="dd MMM yyyy"
+            android:format12Hour="dd MMM yyyy"
+            android:lines="1"/>
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/location_placeholder"
+            android:lines="1"/>
+
+    </LinearLayout>
+</LinearLayout >

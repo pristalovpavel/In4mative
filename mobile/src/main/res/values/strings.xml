@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">In4mative</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="app_hint">One app for all the necessary information</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="location_placeholder">Unknown location</string>
+    <string name="date_format">dd.MM.YY</string>
+</resources>
