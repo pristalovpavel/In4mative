@@ -53,12 +53,11 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            // Create a new Fragment to be placed in the activity layout
-            DateTimeFragment firstFragment = new DateTimeFragment();
-
-            // Add the fragment to the 'fragment_container' FrameLayout
+            // Add the fragments to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_main, firstFragment).addToBackStack(null).commit();
+                    .add(R.id.content_main, new DateTimeFragment()).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content_main, new NewsFragment()).addToBackStack(null).commit();
         }
 
     }

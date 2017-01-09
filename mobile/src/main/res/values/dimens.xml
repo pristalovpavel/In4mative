@@ -11,4 +11,7 @@
 
     <!-- DateTimeFragment design constants-->
     <dimen name="clock_font_size">24sp</dimen>
+
+    <!-- NewsFragment design constants-->
+    <dimen name="list_item_height">48dp</dimen>
 </resources>

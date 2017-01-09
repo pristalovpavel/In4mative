@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     tools:context="com.pristalovpavel.in4mative.DateTimeFragment"
     android:orientation="horizontal"
-    android:padding="@dimen/activity_base_view_padding">
+    android:padding="@dimen/activity_base_view_padding"
+    android:background="@color/colorDateTimeFragmentBackground">
 
     <TextClock
         android:id="@+id/timeClock"

@@ -89,7 +89,7 @@ public class DateTimeFragment extends Fragment {
                 View dateView = getView().findViewById(R.id.dateView);
                 if (dateView != null && dateView instanceof TextView) {
                     ((TextView) dateView).setText(DateFormat.getDateInstance(
-                            DateFormat.SHORT).format(Calendar.getInstance()));
+                            DateFormat.SHORT).format(Calendar.getInstance().getTime()));
                 }
             }
         }
