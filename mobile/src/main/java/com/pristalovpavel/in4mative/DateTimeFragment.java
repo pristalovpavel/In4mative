@@ -1,18 +1,33 @@
 package com.pristalovpavel.in4mative;
 
 import android.content.Context;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.pristalovpavel.in4mative.rest.interfaces.OpenWeatherMapAPI;
+import com.pristalovpavel.in4mative.rest.model.OpenWeatherMapData;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import retrofit.Callback;
+import retrofit.GsonConverterFactory;
+import retrofit.Response;
+import retrofit.Call;
+import retrofit.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,8 +37,18 @@ import java.util.Calendar;
  * Use the {@link DateTimeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DateTimeFragment extends Fragment {
+public class DateTimeFragment
+        extends Fragment
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        Callback<OpenWeatherMapData>
+{
     private OnDateTimeFragmentInteractionListener mListener;
+
+    // TODO move to presenter
+    private GoogleApiClient googleApiClient;
+    private Location mLastLocation;
+
     public DateTimeFragment() {
         // Required empty public constructor
     }
@@ -49,6 +74,15 @@ public class DateTimeFragment extends Fragment {
         if (getArguments() != null) {
             //mParam1 = getArguments().getString(ARG_PARAM1);
             //mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+
+        // Create an instance of GoogleAPIClient.
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(getContext())
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
         }
     }
 
@@ -77,15 +111,18 @@ public class DateTimeFragment extends Fragment {
 
     }
 
+    public void onStart() {
+        googleApiClient.connect();
+        super.onStart();
+    }
+
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         //TODO test me on 14..16 API!!!
-        if(Build.VERSION.SDK_INT < 17)
-        {
+        if (Build.VERSION.SDK_INT < 17) {
             //TODO use data binding library instead
-            if(getView() != null) {
+            if (getView() != null) {
                 View dateView = getView().findViewById(R.id.dateView);
                 if (dateView != null && dateView instanceof TextView) {
                     ((TextView) dateView).setText(DateFormat.getDateInstance(
@@ -94,10 +131,66 @@ public class DateTimeFragment extends Fragment {
             }
         }
     }
+
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void onStop() {
+        googleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        //TODO make runtime check and request permission like in checkPermission() method
+        try {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        }
+        catch (SecurityException e) {
+            //TODO write handler
+        }
+
+        if (mLastLocation != null) {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("http://api.openweathermap.org")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            // prepare call in Retrofit 2.0
+            OpenWeatherMapAPI stackOverflowAPI = retrofit.create(OpenWeatherMapAPI.class);
+
+            Call<OpenWeatherMapData> call =
+                    stackOverflowAPI.loadQuestions(mLastLocation.getLatitude(),
+                                                    mLastLocation.getLongitude());
+            //asynchronous call
+            call.enqueue(DateTimeFragment.this);
+            //mLatitudeText.setText(String.valueOf(mLastLocation.getLatitude()));
+            //mLongitudeText.setText(String.valueOf(mLastLocation.getLongitude()));
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(getContext(), "Connection failed!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onResponse(Response<OpenWeatherMapData> response, Retrofit retrofit) {
+        Toast.makeText(getContext(), "Success!!!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onFailure(Throwable t) {
+
     }
 
     /**
@@ -113,4 +206,35 @@ public class DateTimeFragment extends Fragment {
     public interface OnDateTimeFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
+    /*
+    //TODO write permission handler. see https://developer.android.com/training/permissions/requesting.html
+    private boolean checkPermission()
+    {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(thisActivity,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
+                    Manifest.permission.READ_CONTACTS)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(thisActivity,
+                        new String[]{Manifest.permission.READ_CONTACTS},
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }*/
 }
